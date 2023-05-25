@@ -1,0 +1,27 @@
+# Dependency directories
+node_modules/
+pnp/
+.pnp/
+.cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+
+# Log files
+logs/
+*.log
+
+# Editor-specific files
+.vscode/
+.idea/
+*.swp
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
