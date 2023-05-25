@@ -11,13 +11,14 @@ export class Miner {
 
 export class Block {
     constructor(blockData) {
-        const { data, hash, nonce, node } = blockData;
+        const { data, hash, nonce, node, block } = blockData;
         this.timestamp = Date.now();
         this.difficulty = 2;
         this.nonce = nonce;
         this.previousHash = "0x" + "0".repeat(64);
         this.hash = hash;
         this.node = node;
+        this.block = block;
         Object.assign(this, blockData)
 
     }
@@ -27,12 +28,18 @@ export class Transaction {
     constructor({ from, to, data = {}, fee = 0 }) {
         this.from = from;
         this.to = to;
+        this.value = 0.3;
+        this.transactionFee = 0.00003;
+        this.gasFee = 0.00003;
         this.data = data;
+        this.block = "";
+        this.timestamp = Date.now();
         this.fee = fee;
     }
 }
 
 export class Blockchain {
+    static blockNumber = 0;
     constructor() {
         this.blocks = [];
         this.memPool = [];
@@ -78,6 +85,6 @@ export class Blockchain {
             previousHash = this.blocks[this.blocks.length - 1].hash;
         }
 
-        this.blocks.push(new Block({ nonce, hash: "0x" + hash, data, previousHash }))
+        this.blocks.push(new Block({ nonce, hash: "0x" + hash, data, previousHash, block: ++Blockchain.blockNumber }))
     }
 }
