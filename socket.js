@@ -5,14 +5,14 @@ import { Server } from 'socket.io';
 
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { postMine, getBlocks, syncChain } from './controller';
+import { postMine, getBlocks, syncChain, eventBus } from './controller';
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
 export const httpServer = createServer(app);
-const io = new Server(httpServer, {
+export const io = new Server(httpServer, {
     cors: {
         origin: "*",
     }
@@ -25,14 +25,9 @@ app.post('/api/v1/mine', postMine);
 io.on("connection", (socket) => {
     console.log("SOCKET CONNECTED..!!");
 
-    // Listen for a message event from the client
-    socket.on("message", (data) => {
-        console.log("Message from client:", data);
-
-        // Emit a message event to the client with the received data
-        socket.emit("message", data);
-    });
-
+    eventBus.on("NEW_BLOCK", (data) => {
+        socket.emit("NEW_BLOCK", data)
+    })
     // When the client disconnects
     socket.on("disconnect", () => {
         console.log("A user disconnected");

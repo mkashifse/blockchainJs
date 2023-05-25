@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { pub, sub } from './pubsub';
 import { Blockchain } from './blockchain';
+import { EventEmitter } from 'events';
+export const eventBus = new EventEmitter();
+
 
 export const blockChain = new Blockchain()
 
@@ -22,6 +25,7 @@ sub.subscribe("NEW_BLOCK", (data, channel) => {
     const blocks = JSON.parse(data);
     console.log("RECEIVED", channel, blocks.length);
     blockChain.replaceChain(blocks)
+    eventBus.emit("NEW_BLOCK", data)
 })
 
 
