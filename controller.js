@@ -7,12 +7,23 @@ export const eventBus = new EventEmitter();
 
 export const blockChain = new Blockchain()
 
+
 export const postMine = (req, res) => {
     blockChain.mine();
     pub.publish("NEW_BLOCK", JSON.stringify(blockChain.blocks))
-    res.redirect("/api/v1/blocks")
+    getBlocks(req, res)
 }
 
+
+export const sendTransaction = (req, res) => {
+    const { from, to, value, fee } = req.body;
+    const status = blockChain.sendTransaction({ from, to, value, fee })
+    if (!status) {
+        res.status(401).json({ message: "Transaction Failed" })
+    }
+    getBlocks(req, res)
+
+}
 
 export const getBlocks = (req, res) => {
     res.status(200).json({

@@ -25,16 +25,12 @@ export class Block {
 }
 
 export class Transaction {
-    constructor({ from, to, data = {}, fee = 0 }) {
+    constructor({ from, to, value, fee = 0 }) {
         this.from = from;
         this.to = to;
-        this.value = 0.3;
-        this.transactionFee = 0.00003;
-        this.gasFee = 0.00003;
-        this.data = data;
-        this.block = "";
-        this.timestamp = Date.now();
+        this.value = value;
         this.fee = fee;
+        this.timestamp = Date.now();
     }
 }
 
@@ -51,10 +47,16 @@ export class Blockchain {
 
     }
 
-    sendTransaction(from, to) {
-        this.memPool(new Transaction(from, to))
-        if (this.memPool.length > 9) {
-            this.mine()
+    sendTransaction({ from, to, value, fee }) {
+        if (fee === 0) {
+            console.error(`Transaction Failed!!, ${fee}`)
+            return false;
+        } else {
+            this.memPool.push(new Transaction(from, to, value, fee))
+            if (this.memPool.length > 9) {
+                this.mine()
+            }
+            return true;
         }
     }
 

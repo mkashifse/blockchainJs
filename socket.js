@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { postMine, getBlocks, syncChain, eventBus } from './controller';
+import { postMine, getBlocks, eventBus, sendTransaction } from './controller';
 
 const app = express();
 app.use(bodyParser.json());
@@ -20,6 +20,7 @@ export const io = new Server(httpServer, {
 
 app.get('/api/v1/blocks', getBlocks);
 app.post('/api/v1/mine', postMine);
+app.post('/api/v1/send-transaction', sendTransaction);
 
 // When a client connects
 io.on("connection", (socket) => {
