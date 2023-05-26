@@ -1,6 +1,4 @@
-import { PEER_PORT, httpServer } from "./socket";
-
-
+import { PEER_PORT, httpServer } from "./routes";
 
 httpServer.listen(PEER_PORT, () => {
     console.log(`Server is running on PEER_PORT ${PEER_PORT}`);
