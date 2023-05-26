@@ -35,7 +35,7 @@ io.on("connection", (socket) => {
     })
     eventBus.on(EVENTS.NEW_TNX, (data) => {
         const payload = JSON.stringify(data);
-        pub.publish(EVENTS.NEW_BLK, payload)
+        pub.publish(EVENTS.NEW_TNX, payload)
         socket.emit(EVENTS.NEW_TNX, payload)
     })
 
@@ -47,14 +47,14 @@ io.on("connection", (socket) => {
 
 sub.subscribe(EVENTS.NEW_BLK, (data, channel) => {
     const blocks = JSON.parse(data);
-    console.log("RECEIVED", channel, blocks.length);
+    console.log("RECEIVED==>>", channel, blocks.length);
     blockChain.replaceChain(blocks)
 })
 
 sub.subscribe(EVENTS.NEW_TNX, (data, channel) => {
     const tnx = JSON.parse(data);
     console.log("RECEIVED", channel, tnx.length);
-    blockChain.replaceMemPool(tnx)
+    blockChain.replaceTransactions(tnx)
 })
 
 const DEFAULT_PORT = 3000;
