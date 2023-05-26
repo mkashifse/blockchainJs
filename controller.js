@@ -21,14 +21,15 @@ export const sendTransaction = (req, res) => {
     if (!status) {
         res.status(401).json({ message: "Transaction Failed" })
     }
-    getBlocks(req, res)
+    getBlocks(req, res, { memPool: blockChain.memPool.length })
 
 }
 
-export const getBlocks = (req, res) => {
+export const getBlocks = (req, res, data) => {
     res.status(200).json({
+        data,
         totalBlocs: blockChain.blocks.length,
-        blocks: blockChain.blocks
+        blocks: blockChain.blocks,
     });
 }
 

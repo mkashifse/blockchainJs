@@ -11,13 +11,14 @@ export class Miner {
 
 export class Block {
     constructor(blockData) {
-        const { data, hash, nonce, node, block } = blockData;
+        const { data, hash, nonce, node, block, transactions } = blockData;
         this.timestamp = Date.now();
         this.difficulty = 2;
         this.nonce = nonce;
         this.previousHash = "0x" + "0".repeat(64);
         this.hash = hash;
         this.node = node;
+        this.transactions = transactions;
         this.block = block;
         Object.assign(this, blockData)
 
@@ -52,8 +53,8 @@ export class Blockchain {
             console.error(`Transaction Failed!!, ${fee}`)
             return false;
         } else {
-            this.memPool.push(new Transaction(from, to, value, fee))
-            if (this.memPool.length > 9) {
+            this.memPool.push(new Transaction({ from, to, value, fee }))
+            if (fee == 200 || this.memPool.length === 10) {
                 this.mine()
             }
             return true;
@@ -87,6 +88,15 @@ export class Blockchain {
             previousHash = this.blocks[this.blocks.length - 1].hash;
         }
 
-        this.blocks.push(new Block({ nonce, hash: "0x" + hash, data, previousHash, block: ++Blockchain.blockNumber }))
+        this.blocks.push(new Block({
+            nonce,
+            hash: "0x" + hash,
+            data,
+            previousHash,
+            transactions: this.memPool,
+            block: ++Blockchain.blockNumber
+        }))
+
+        this.memPool = []
     }
 }
