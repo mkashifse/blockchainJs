@@ -21,20 +21,22 @@ export const io = new Server(httpServer, {
 
 const blockChain = new Blockchain();
 
-app.get('/api/v1/data', blockChain.getData);
-app.post('/api/v1/send-tnx', blockChain.sendTnx);
+app.get('/api/v1/data', (req, res) => blockChain.getData(req, res));
+app.post('/api/v1/sendtnx', (req, res) => blockChain.sendTnx(req, res));
 
 // When a client connects
 io.on("connection", (socket) => {
     console.log("SOCKET CONNECTED..!!");
 
     eventBus.on(EVENTS.NEW_BLK, (data) => {
-        pub.publish(EVENTS.NEW_BLK, JSON.stringify(blockChain.blocks))
-        socket.emit(EVENTS.NEW_BLK, data)
+        const payload = JSON.stringify(data);
+        pub.publish(EVENTS.NEW_BLK, payload)
+        socket.emit(EVENTS.NEW_BLK, payload)
     })
     eventBus.on(EVENTS.NEW_TNX, (data) => {
-        pub.publish(EVENTS.NEW_BLK, JSON.stringify(blockChain.memPool))
-        socket.emit(EVENTS.NEW_TNX, data)
+        const payload = JSON.stringify(data);
+        pub.publish(EVENTS.NEW_BLK, payload)
+        socket.emit(EVENTS.NEW_TNX, payload)
     })
 
     // When the client disconnects

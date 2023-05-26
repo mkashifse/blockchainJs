@@ -66,20 +66,22 @@ export class Blockchain {
     static blockNumber = 0;
     constructor() {
         this.blocks = [];
-        this.memPool = [];
+        this.transactions = [];
         this.miners = [];
         this.addNewMinor();
         this.syncChain();
     }
 
-    clearMemPool() {
-        this.memPool = []
+    clearTransactions() {
+        this.transactions = []
     }
 
     syncChain = async () => {
-        const { tnx, blocks } = await axios.get('http://localhost:3000/api/v1/data')
+        const { data: { transactions, blocks } } = await axios.get('http://localhost:3000/api/v1/data')
         this.replaceChain(blocks);
-        this.replaceMemPool(tnx);
+        this.replaceTransactions(transactions);
+
+        console.log(`Total BLOCKS: ${blocks.length}, TNX: ${transactions.length} Synced`)
     }
 
     activateMiners() {
@@ -88,11 +90,11 @@ export class Blockchain {
             previousHash = this.blocks[this.blocks.length - 1].hash;
         }
         const block = this.miners[0].mine({
-            transactions: this.memPool,
+            transactions: this.transactions,
             previousHash
         });
         this.blocks.push(block);
-        eventBus.emit(EVENTS.NEW_BLK, JSON.stringify(this.blocks));
+        eventBus.emit(EVENTS.NEW_BLK, this.blocks);
     }
 
     addNewMinor() {
@@ -109,35 +111,27 @@ export class Blockchain {
         }
     }
 
-    replaceMemPool(tnx) {
-        this.memPool = tnx;
+    replaceTransactions(tnx) {
+        this.transactions = tnx;
     }
 
     // ============= controller routes
     sendTnx(req, res) {
         const { from, to, value, fee } = req.body;
         if (fee < 20) {
-            res.status(401, `Transaction Failed!!, Low FEE: ${fee}. Fee must be >= 20`)
+            res.status(401).json({ message: `Transaction Failed!!, Low FEE: ${fee}. Fee must be >= 20` })
         } else {
-            this.memPool.push(new Transaction({ from, to, value, fee }))
-            eventBus.emit(EVENTS.NEW_TNX, JSON.stringify(this.memPool))
-            if (fee == 200 || this.memPool.length === 10) {
+            this.transactions.push(new Transaction({ from, to, value, fee }))
+            eventBus.emit(EVENTS.NEW_TNX, this.transactions)
+            if (fee == 200 || this.transactions.length === 10) {
                 this.activateMiners();
             }
+            this.getData(req, res)
         }
     }
-
-    getBlock(req, res) {
-        res.status(200).json(this.blocks)
-    }
-
     getData(req, res) {
-        res.status(200).json({
-            meta: {
-                latestTransactions: this.memPool.length,
-                totalBlocks: this.blocks.length
-            },
-            tnx: this.memPool,
+        res.status(200).send({
+            transactions: this.transactions,
             blocks: this.blocks
         })
     }
